@@ -1,0 +1,44 @@
+services:
+  backend:
+    image: accounts-keeper
+    depends_on:
+      - db
+      - cache
+    ports:
+      - 3000:3000
+    volumes:
+      - ./:/app
+    networks:
+      - network
+    env_file:
+      - .env
+    restart: always
+    command: [sh, -c, npm install && npm start]
+
+  db:
+    image: mongodb/mongodb-community-server:7.0.17-ubuntu2204
+    ports:
+      - 27017:27017
+    volumes:
+      - db_data:/data/db
+    networks:
+      - network
+    restart: always
+
+  cache:
+    image: redis:7.4-alpine
+    ports:
+      - 6379:6379
+    volumes:
+      - cache_data:/data
+    networks:
+      - network
+    restart: always
+    command: [redis-server, --save 20 1]
+
+volumes:
+  db_data:
+  cache_data:
+
+networks:
+  network:
